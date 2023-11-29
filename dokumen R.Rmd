@@ -1,0 +1,95 @@
+---
+title: "project R"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+import dataset:
+```{r}
+data <- read.csv("E:/projekan/statistika/Assessment R & Python_ Dataset_superstore_simple.csv")
+```
+
+```{r}
+head(data)
+```
+```{r}
+#creating plot based on particular year
+
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+
+data_baru <- data %>%
+  mutate(order_date = ymd(order_date),
+         Year = year(order_date),
+         Month = month(order_date, label = TRUE, abbr = TRUE))
+
+data_2015 <- data_baru %>% 
+  filter(Year == 2015)
+
+my_color <- "#3498db"
+
+# Create a bar chart
+ggplot(data_2015, aes(x = Month, y = sales)) +
+  geom_bar(stat = "identity", fill = my_color) +
+
+  # Display total sales above the bars
+  stat_summary(
+    aes(label = sprintf("%0.1f", after_stat(y))),
+    fun = sum,
+    geom = "text",
+    position = position_dodge(width = 1),
+    vjust = -0.5,
+    color = "black",
+    size = 3
+  ) +
+  
+  # Improve the appearance
+  labs(title = "Sales Trend in 2015",
+       x = "Date (Month)",
+       y = "Sales") +
+  
+  theme_minimal() +
+  
+  # Center the title
+  theme(plot.title = element_text(hjust = 0.5)) +
+  
+  # Rotate x-axis labels
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+```{r}
+#to calculate revenue based on sales, profit and quantity
+
+library(dplyr)
+
+data_rev <- data %>%
+  select(sales, profit, quantity) %>% 
+  filter(profit > 0) %>% 
+  mutate(Revenue = sales * quantity) %>%
+  arrange(desc(Revenue))
+
+head(data_rev,10)
+```
+```{r}
+library(dplyr)
+
+data %>% 
+  group_by(category) %>% 
+  summarise(
+    total_sales = sum(sales),
+    avg_profit = mean(profit))
+```
+```{r}
+library(ggplot2)
+
+d <- ggplot(data, aes(category))
+
+d + geom_bar(fill = "blue")
+```
+
